@@ -4,44 +4,9 @@ import (
 	"flag"
 	"fmt"
 	"log"
-	"os"
-	"path/filepath"
-	"strings"
+
+	"github.com/kustavo/projeto-musicoteca/internal"
 )
-
-const (
-	ArtistsFolder = "artistsFolder"
-	ArtistFolder  = "artistFolder"
-	AlbumFolder   = "albumFolder"
-)
-
-const (
-	AudioMediaType = "audio"
-	VideoMediaType = "video"
-)
-
-var IgnoredArtistsFolderFiles = []string{"Readme.md", ".sync.ffs_db"}
-
-type song struct {
-	name      string
-	track     int
-	flags     map[string]bool
-	path      string
-	midiaType string
-}
-
-type album struct {
-	name  string
-	flags map[string]bool
-	songs map[string]song
-	path  string
-}
-
-type artist struct {
-	name   string
-	albums map[string]album
-	path   string
-}
 
 func main() {
 	rootDir := flag.String("root-dir", "/mnt/arquivos/Músicas", "Root directory path")
@@ -71,7 +36,7 @@ func main() {
 		*includeAudio = true
 	}
 
-	files, err := listFilesAndCheckEmptyDirs(*rootDir, *sourceDir)
+	files, err := internal.GetFilesMap(*rootDir, *sourceDir)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -110,122 +75,6 @@ func main() {
 	// }
 
 	// wg.Wait()
-}
-
-func listFilesAndCheckEmptyDirs(rootDir string, sourceDir string) (map[string]artist, error) {
-	songs := make(map[string]artist)
-
-	err := filepath.WalkDir(sourceDir, func(path string, d os.DirEntry, err error) error {
-		if err != nil {
-			return err
-		}
-
-		if d.IsDir() {
-			isEmpty, err := isDirectoryEmpty(path)
-			if err != nil {
-				return err
-			}
-			if isEmpty {
-				return fmt.Errorf("empty directory found: %s", path)
-			}
-		} else {
-			songObj := song{}
-			albumObj := album{}
-			artistObj := artist{}
-
-			relativePath, err := filepath.Rel(rootDir, path)
-			if err != nil {
-				return err
-			}
-
-			arrRelativePath := strings.Split(relativePath, string(filepath.Separator))
-
-			if arrRelativePath[0] == "_000_analise" || arrRelativePath[0] == "_000_fila" {
-				return nil
-			}
-
-			if len(arrRelativePath) == 1 { // artists folder
-				if !contains(IgnoredArtistsFolderFiles, arrRelativePath[0]) {
-					return fmt.Errorf("invalid file location: %s", relativePath)
-				}
-				return nil
-			} else if len(arrRelativePath) == 2 { // artist folder
-				artistObj.name = arrRelativePath[0]
-				artistObj.path = filepath.Dir(path)
-				albumObj.name = ""
-				albumObj.path = ""
-				songObj.name = arrRelativePath[1]
-			} else if len(arrRelativePath) == 3 { // album folder
-				artistObj.name = arrRelativePath[0]
-				artistObj.path = filepath.Dir(filepath.Dir(path))
-				albumObj.name = arrRelativePath[1]
-				albumObj.path = filepath.Dir(path)
-				songObj.name = arrRelativePath[2]
-			} else {
-				return fmt.Errorf("directory beyond depth limit: %s", path)
-			}
-			appendMap(songs, artistObj, albumObj, songObj)
-		}
-		return nil
-	})
-	if err != nil {
-		return nil, err
-	}
-	return songs, nil
-}
-
-func appendMap(m map[string]artist, newArtist artist, newAlbum album, newSong song) {
-	artistObj, artistExists := m[newArtist.name]
-	if !artistExists {
-		newArtist.albums = make(map[string]album)
-		artistObj = newArtist
-		m[newArtist.name] = artistObj
-	}
-
-	albumMap := artistObj.albums
-	albumObj, albumExists := albumMap[newAlbum.name]
-	if !albumExists {
-		newAlbum.songs = make(map[string]song)
-		albumObj = newAlbum
-		albumMap[newAlbum.name] = albumObj
-	}
-
-	songMap := albumObj.songs
-	if _, songExists := songMap[newSong.name]; !songExists {
-		songMap[newSong.name] = newSong
-	}
-}
-
-func isDirectoryEmpty(path string) (bool, error) {
-	dirEntries, err := os.ReadDir(path)
-	if err != nil {
-		return false, err
-	}
-
-	for _, entry := range dirEntries {
-		if entry.IsDir() {
-			isEmpty, err := isDirectoryEmpty(filepath.Join(path, entry.Name()))
-			if err != nil {
-				return false, err
-			}
-			if !isEmpty {
-				return false, nil
-			}
-		} else {
-			return false, nil
-		}
-	}
-
-	return true, nil
-}
-
-func contains(arr []string, value string) bool {
-	for _, item := range arr {
-		if item == value {
-			return true
-		}
-	}
-	return false
 }
 
 // func getFilesWithSubstring(path string, substring string) ([]string, error) {
