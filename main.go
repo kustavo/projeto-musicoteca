@@ -2,33 +2,32 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"log"
 
 	"github.com/kustavo/projeto-musicoteca/internal"
 )
 
 func main() {
-	rootDir := flag.String("root-dir", "/mnt/arquivos/Músicas", "Root directory path")
-	sourceDir := flag.String("source-dir", "/mnt/arquivos/Músicas", "Source directory path")
-	outputDir := flag.String("output-dir", "", "Output directory path")
+	rootPath := flag.String("root-path", "/mnt/arquivos/Músicas", "Root directory path")
+	sourcePath := flag.String("source-path", "/mnt/arquivos/Músicas", "Source directory path")
+	outputPath := flag.String("output-path", "", "Output directory path")
 	includeAudio := flag.Bool("include-audio-files", false, "Include audio files")
 	includeVideo := flag.Bool("include-video-files", false, "Include video files")
 
 	flag.Parse()
 
-	if sourceDir == nil || *sourceDir == "" {
+	if sourcePath == nil || *sourcePath == "" {
 		log.Fatal("source directory path not specified")
 		return
 	}
 
-	if outputDir == nil || *outputDir == "" {
+	if outputPath == nil || *outputPath == "" {
 		log.Fatal("output directory path not specified")
 		return
 	}
 
-	if rootDir == nil || *rootDir == "" {
-		rootDir = sourceDir
+	if rootPath == nil || *rootPath == "" {
+		rootPath = sourcePath
 		return
 	}
 
@@ -36,13 +35,14 @@ func main() {
 		*includeAudio = true
 	}
 
-	files, err := internal.GetFilesMap(*rootDir, *sourceDir)
+	files, err := internal.GetFilesMap(*rootPath, *sourcePath)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	for _, file := range files {
-		fmt.Println(file)
+		// fmt.Println(file)
+		_ = file
 	}
 
 	// files, err := getFilesWithSubstring(*dirIn, "[TOP]")

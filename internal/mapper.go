@@ -38,10 +38,11 @@ type Song struct {
 }
 
 type Album struct {
-	name  string
-	flags map[string]bool
-	songs map[string]Song
-	path  string
+	artist string
+	name   string
+	flags  map[string]bool
+	songs  map[string]Song
+	path   string
 }
 
 type Artist struct {
@@ -67,7 +68,6 @@ func GetFilesMap(rootDir string, sourceDir string) (map[string]Artist, error) {
 				return fmt.Errorf("empty directory found: %s", path)
 			}
 		} else {
-
 			err := appendSong(songs, path, rootDir)
 			if err != nil {
 				return err
@@ -78,6 +78,17 @@ func GetFilesMap(rootDir string, sourceDir string) (map[string]Artist, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	err = validateArtistName(songs)
+	if err != nil {
+		return nil, err
+	}
+
+	err = validateDiscoTrack(songs)
+	if err != nil {
+		return nil, err
+	}
+
 	return songs, nil
 }
 
@@ -98,7 +109,7 @@ func appendFileMap(m map[string]Artist, newArtist Artist, newAlbum Album, newSon
 	}
 
 	songMap := albumObj.songs
-	songMapKey := fmt.Sprintf("%s (%s)", newSong.name, newSong.midiaType)
+	songMapKey := newSong.path
 	if _, songExists := songMap[songMapKey]; !songExists {
 		songMap[songMapKey] = newSong
 	}
@@ -114,18 +125,14 @@ func appendSong(songs map[string]Artist, filePath string, rootDir string) error 
 		return err
 	}
 
-	if strings.Contains(relFilePath, "  ") {
-		return fmt.Errorf("two spaces detected: %s", relFilePath)
-	}
-
-	if !strings.Contains(relFilePath, " - ") {
-		return fmt.Errorf("artist and title separetor not found: %s", relFilePath)
-	}
-
 	relativePathArr := strings.Split(relFilePath, string(filepath.Separator))
 
 	if relativePathArr[0] == "_000_analise" || relativePathArr[0] == "_000_fila" { // TODO: remover
 		return nil
+	}
+
+	if strings.Contains(relFilePath, "  ") {
+		return fmt.Errorf("two spaces detected: %s", filePath)
 	}
 
 	isDirArtists := len(relativePathArr) == 1
@@ -138,7 +145,7 @@ func appendSong(songs map[string]Artist, filePath string, rootDir string) error 
 
 	if isDirArtists {
 		if !contains(IgnoredArtistsFolderFiles, relativePathArr[0]) {
-			return fmt.Errorf("invalid file location: %s", relFilePath)
+			return fmt.Errorf("invalid file location: %s", filePath)
 		}
 		return nil
 	} else if isDirArtist {
@@ -160,6 +167,10 @@ func appendSong(songs map[string]Artist, filePath string, rootDir string) error 
 		albumObj.name = ""
 	} else {
 		albumObj.path = albumPath
+		albumObj.artist, err = getArtist(relativePathArr[1])
+		if err != nil {
+			return fmt.Errorf("%s: %s", err.Error(), albumObj.path)
+		}
 		albumObj.name, err = getTitle(relativePathArr[1], false)
 		if err != nil {
 			return err
@@ -168,7 +179,6 @@ func appendSong(songs map[string]Artist, filePath string, rootDir string) error 
 		if err != nil {
 			return err
 		}
-
 		songObj.disc, songObj.track, err = getDiscTrack(relativePathArr[2])
 		if err != nil {
 			return err
@@ -177,7 +187,7 @@ func appendSong(songs map[string]Artist, filePath string, rootDir string) error 
 	songObj.path = songPath
 	songObj.artist, err = getArtist(relativePathArr[len(relativePathArr)-1])
 	if err != nil {
-		return err
+		return fmt.Errorf("%s: %s", err.Error(), songObj.path)
 	}
 	songObj.name, err = getTitle(relativePathArr[len(relativePathArr)-1], true)
 	if err != nil {
@@ -208,6 +218,9 @@ func appendSong(songs map[string]Artist, filePath string, rootDir string) error 
 func getArtist(fileName string) (string, error) {
 	firstIndex := 0
 	lastIndex := strings.Index(fileName, " - ")
+	if lastIndex < 0 {
+		return "", fmt.Errorf("artist and title separetor not found")
+	}
 	return fileName[firstIndex:lastIndex], nil
 }
 
@@ -293,4 +306,61 @@ func getMidiaType(fileName string) (string, error) {
 	} else {
 		return "", fmt.Errorf("extension not allowed: %s", fileName)
 	}
+}
+
+func validateArtistName(songs map[string]Artist) error {
+	splitChar := " & "
+	for _, artist := range songs {
+		artistsName := strings.Split(artist.name, splitChar)
+		for _, album := range artist.albums {
+			if album.name != "" {
+				artistsAlbum := strings.Split(album.artist, splitChar)
+				for _, artistName := range artistsName {
+					if !contains(artistsAlbum, artistName) {
+						return fmt.Errorf("different album artist name: '%s' <> '%s'", artist.name, album.artist)
+					}
+				}
+			}
+			for _, song := range album.songs {
+				artistsSong := strings.Split(song.artist, splitChar)
+				for _, artistName := range artistsName {
+					if !contains(artistsSong, artistName) {
+						return fmt.Errorf("different song artist name: '%s' <> '%s'", artist.name, song.artist)
+					}
+				}
+			}
+		}
+	}
+	return nil
+}
+
+func validateDiscoTrack(songs map[string]Artist) error {
+	for _, artist := range songs {
+		for _, album := range artist.albums {
+			if album.name != "" {
+				discosTracks := map[int]map[int]bool{}
+				for _, song := range album.songs {
+					if song.midiaType != VideoMediaType {
+						if _, ok := discosTracks[song.disc]; !ok {
+							discosTracks[song.disc] = map[int]bool{}
+						}
+						discosTracks[song.disc][song.track] = true
+					}
+				}
+				for j := 1; j <= len(discosTracks); j++ {
+					if _, ok := discosTracks[j]; !ok {
+						return fmt.Errorf("disc '%d' of album '%s' not found", j, album.path)
+					}
+					for i := 1; i <= len(discosTracks[j]); i++ {
+						if _, ok := discosTracks[j][i]; !ok {
+							return fmt.Errorf("track '%d.%d' of album '%s' not found", j, i, album.path)
+						}
+					}
+				}
+				fmt.Print(discosTracks)
+			}
+		}
+	}
+
+	return nil
 }
