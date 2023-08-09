@@ -109,7 +109,9 @@ func appendFileMap(m map[string]Artist, newArtist Artist, newAlbum Album, newSon
 	}
 
 	songMap := albumObj.songs
-	songMapKey := newSong.path
+	// songMapKey := newSong.path
+	// Irá acusar se tiver nomes iguais em tracks diferentes
+	songMapKey := fmt.Sprintf("%s (%s)", newSong.name, newSong.midiaType)
 	if _, songExists := songMap[songMapKey]; !songExists {
 		songMap[songMapKey] = newSong
 	}
@@ -357,7 +359,6 @@ func validateDiscoTrack(songs map[string]Artist) error {
 						}
 					}
 				}
-				fmt.Print(discosTracks)
 			}
 		}
 	}
