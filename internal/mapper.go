@@ -27,6 +27,39 @@ var (
 
 var IgnoredArtistsFolderFiles = []string{"Readme.md", ".sync.ffs_db"}
 
+// ## Tag principal
+// * SPD - Speed Metal
+// * HVY - Heavy Metal
+// * HRD - Hard Rock
+// * ROC - Rock
+// * POP - Pop Rock (sem guitarras, refrão repetitivo)
+// * SFT - Soft (rock lento ou romântico)
+// * DSC - Disco (estilo anos 70)
+// * DCE - Dance (estilo anos 90)
+// * RLX - Relax (muito tranquila com voz) (para relaxamento, igual foco mas pode ter voz)
+// * FOC - focus (muito tranquila sem voz) (para manter o foco, não distrair com barulho externo)
+// * SPN - Spanish (músicas em espanhol)
+// * INS - Instrumental
+// * COU - Country
+// * REG - Reggae
+// ## Tags secundárias
+// * 60S - Anos 60
+// * 70S - Anos 70
+// * 80S - Anos 80
+// * 90S - Anos 90
+// * LIV - Live (ao vivo, com platéia)
+// * ORC - Orchestrated (músicas orquestradas)
+// * COR - Choir (coro)
+// * BRA - Nacional
+// * GOV - Good Vibes (alto astral)
+// * TOP - Top (favoritas)
+// * NUL - Null (apenas para o acervo, não deve entrar em playlist)
+
+var (
+	MainTags      = []string{"SPD", "HVY", "HRD", "ROC", "POP", "SFT", "DSC", "DCE", "RLX", "FOC", "SPN", "INS", "COU", "REG"}
+	SecondaryTags = []string{"60S", "70S", "80S", "90S", "LIV", "ORC", "COR", "BRA", "GOV", "TOP", "NUL"}
+)
+
 type Song struct {
 	artist    string
 	name      string
@@ -287,8 +320,17 @@ func getFlags(fileName string) (map[string]bool, error) {
 	flagsRaw = strings.Replace(flagsRaw, "[", "", -1)
 	flagsArr := strings.Split(flagsRaw, ";")
 
-	for _, flag := range flagsArr {
-		flags[flag] = true
+	for i := 0; i < len(flagsArr); i++ {
+		if i == 0 {
+			if !contains(MainTags, flagsArr[i]) {
+				return flags, fmt.Errorf("main flag '%s' not found: %s", flagsArr[i], fileName)
+			}
+		} else {
+			if !contains(SecondaryTags, flagsArr[i]) {
+				return flags, fmt.Errorf("secondary '%s' flag not found: %s", flagsArr[i], fileName)
+			}
+		}
+		flags[flagsArr[i]] = true
 	}
 
 	return flags, nil
