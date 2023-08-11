@@ -56,8 +56,8 @@ var IgnoredArtistsFolderFiles = []string{"Readme.md", ".sync.ffs_db"}
 // * NUL - Null (apenas para o acervo, não deve entrar em playlist)
 
 var (
-	MainTags      = []string{"SPD", "HVY", "HRD", "ROC", "POP", "SFT", "DSC", "DCE", "RLX", "FOC", "SPN", "INS", "COU", "REG"}
-	SecondaryTags = []string{"60S", "70S", "80S", "90S", "LIV", "ORC", "COR", "BRA", "GOV", "TOP", "NUL"}
+	MainFlags      = []string{"SPD", "HVY", "HRD", "ROC", "POP", "SFT", "DSC", "DCE", "RLX", "FOC", "SPN", "INS", "COU", "REG"}
+	SecondaryFlags = []string{"60S", "70S", "80S", "90S", "LIV", "ORC", "COR", "BRA", "GOV", "TOP", "NUL"}
 )
 
 type Song struct {
@@ -321,16 +321,21 @@ func getFlags(fileName string) (map[string]bool, error) {
 	flagsArr := strings.Split(flagsRaw, ";")
 
 	for i := 0; i < len(flagsArr); i++ {
+		flag := flagsArr[i]
 		if i == 0 {
-			if !contains(MainTags, flagsArr[i]) {
-				return flags, fmt.Errorf("main flag '%s' not found: %s", flagsArr[i], fileName)
+			if !contains(MainFlags, flag) {
+				return flags, fmt.Errorf("main flag '%s' not found: %s", flag, fileName)
 			}
 		} else {
-			if !contains(SecondaryTags, flagsArr[i]) {
-				return flags, fmt.Errorf("secondary '%s' flag not found: %s", flagsArr[i], fileName)
+			if !contains(SecondaryFlags, flag) {
+				return flags, fmt.Errorf("secondary '%s' flag not found: %s", flag, fileName)
 			}
 		}
-		flags[flagsArr[i]] = true
+		_, existe := flags[flag]
+		if existe {
+			return flags, fmt.Errorf("repeated flag '%s': %s", flag, fileName)
+		}
+		flags[flag] = true
 	}
 
 	return flags, nil
