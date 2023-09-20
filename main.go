@@ -35,12 +35,23 @@ func main() {
 		*includeAudio = true
 	}
 
-	files, err := internal.GetFilesMap(*rootPath, *sourcePath)
+	sourceFiles, err := internal.GetFilesMap(*rootPath, *sourcePath)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	for _, file := range files {
+	destinyFiles, err := internal.GetFilesMap(*outputPath, *outputPath)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// TODO: Filtrar por tags
+
+	flags := []string{"ROC"}
+	internal.Filter(sourceFiles, destinyFiles, *includeAudio, *includeVideo, flags)
+	internal.Transfer(sourceFiles, destinyFiles, *includeAudio, *includeVideo, flags)
+
+	for _, file := range sourceFiles {
 		// fmt.Println(file)
 		_ = file
 	}
@@ -97,51 +108,4 @@ func main() {
 // 	}
 
 // 	return filesWithSubstring, nil
-// }
-
-// func convertFlacToMp3(flacPath string, mp3Path string) error {
-
-// 	// cmd := exec.Command("ffmpeg", "-i", flacPath, "-y", mp3Path)
-// 	cmd := exec.Command("ffmpeg", "-i", flacPath, "-y", "-ab", "320k", mp3Path)
-// 	err := cmd.Run()
-// 	if err != nil {
-// 		return fmt.Errorf("failed to convert FLAC to MP3: %v", err)
-// 	}
-// 	return nil
-// }
-
-// func getFolderLevelType(searchType string, relativePath string) (string, error) {
-// 	numSeparators := len(filepath.SplitList(relativePath)) - 1
-
-// 	switch searchType {
-// 	case ArtistsSearchType:
-// 		switch numSeparators {
-// 		case 0:
-// 			return ArtistsSearchType, nil
-// 		case 1:
-// 			return ArtistSearchType, nil
-// 		case 2:
-// 			return AlbumSearchType, nil
-// 		default:
-// 			return "", fmt.Errorf("directory beyond depth limit: %s", relativePath)
-// 		}
-// 	case ArtistSearchType:
-// 		switch numSeparators {
-// 		case 0:
-// 			return ArtistSearchType, nil
-// 		case 1:
-// 			return AlbumSearchType, nil
-// 		default:
-// 			return "", fmt.Errorf("directory beyond depth limit: %s", relativePath)
-// 		}
-// 	case AlbumSearchType:
-// 		switch numSeparators {
-// 		case 0:
-// 			return AlbumSearchType, nil
-// 		default:
-// 			return "", fmt.Errorf("directory beyond depth limit: %s", relativePath)
-// 		}
-// 	default:
-// 		return "", fmt.Errorf("unknown searchType: %s", searchType)
-// 	}
 // }

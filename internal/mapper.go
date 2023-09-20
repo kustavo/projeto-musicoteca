@@ -245,6 +245,10 @@ func appendSong(songs map[string]Artist, filePath string, rootDir string) error 
 		return fmt.Errorf("album and song have no flags: %s", filePath)
 	}
 
+	if len(albumObj.flags) > 0 {
+		songObj.flags = albumObj.flags
+	}
+
 	appendFileMap(songs, artistObj, albumObj, songObj)
 
 	return nil
