@@ -12,7 +12,7 @@
             "program": "${workspaceRoot}/main.go",
             "env": {},
             // "args": ["-root-path", "/mnt/arquivos/Músicas/_000_fila/_000_teste_go", "-source-path", "/mnt/arquivos/Músicas/_000_fila/_000_teste_go", "-output-path", "/teste", "-include-audio-files", "-include-video-files"]
-            "args": ["-root-path", "/mnt/arquivos/Músicas/_000_fila/_000_teste_go/", "-source-path", "/mnt/arquivos/Músicas/_000_fila/_000_teste_go/", "-output-path", "/home/gustavo/teste/", "-include-audio-files", "-include-video-files"]
+            "args": ["-root-path", "/mnt/arquivos/Músicas/_000_fila/_000_teste_go/", "-source-path", "/mnt/arquivos/Músicas/_000_fila/_000_teste_go/", "-output-path", "/home/gustavo/teste/", "-include-audio-files", "-include-video-files", "-flags", "roc"]
 
         }
     ]

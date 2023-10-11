@@ -31,19 +31,23 @@ func Transfer(sourceFiles map[string]Artist, destinyPath string, includeAudio bo
 					wg.Add(1)
 					go func(filePath, mp3Path string) {
 						defer wg.Done()
-						fmt.Println(filePath)
 						err := convertFlacToMp3(filePath, mp3Path)
 						if err != nil {
 							fmt.Println(err)
 						} else {
-							fmt.Printf("Converted %s to %s", filePath, mp3Path)
+							fmt.Printf("Convertido: %s >>> %s \n", filePath, mp3Path)
 						}
 					}(filePath, mp3Path)
 
 					fmt.Println(file)
 				} else {
 					videoPath := filepath.Join(destinyPath, sourceSong.path)
-					moveFile(filePath, videoPath)
+					err := moveFile(filePath, videoPath)
+					if err != nil {
+						fmt.Println(err)
+					} else {
+						fmt.Printf("Moved: %s >>> %s \n", filePath, videoPath)
+					}
 				}
 			}
 		}
