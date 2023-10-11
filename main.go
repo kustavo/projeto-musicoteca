@@ -49,7 +49,7 @@ func main() {
 
 	flags := []string{"ROC"}
 	internal.Filter(sourceFiles, destinyFiles, *includeAudio, *includeVideo, flags)
-	internal.Transfer(sourceFiles, destinyFiles, *includeAudio, *includeVideo, flags)
+	internal.Transfer(sourceFiles, *outputPath, *includeAudio, *includeVideo, flags)
 
 	for _, file := range sourceFiles {
 		// fmt.Println(file)

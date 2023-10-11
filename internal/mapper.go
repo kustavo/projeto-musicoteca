@@ -97,7 +97,7 @@ func GetFilesMap(rootDir string, sourceDir string) (map[string]Artist, error) {
 			if err != nil {
 				return err
 			}
-			if isEmpty {
+			if isEmpty && rootDir != path {
 				return fmt.Errorf("empty directory found: %s", path)
 			}
 		} else {

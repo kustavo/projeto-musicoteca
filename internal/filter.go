@@ -16,13 +16,11 @@ func Filter(sourceFiles map[string]Artist, destinyFiles map[string]Artist, inclu
 
 				destinyArtist := destinyFiles[sourceArtist.name]
 				destinyAlbum := destinyArtist.albums[sourceAlbums.name]
-				destinySong := destinyAlbum.songs[sourceSong.path]
-				_ = destinyArtist
-				_ = destinyAlbum
-				_ = destinySong
+				songMapKey := fmt.Sprintf("%s (%s)", sourceSong.name, sourceSong.midiaType)
+				destinySong := destinyAlbum.songs[songMapKey]
 
-				if destinySong == nil {
-					delete(sourceAlbums.songs, sourceSong.path)
+				if destinySong.path != "" {
+					delete(sourceAlbums.songs, songMapKey)
 				}
 			}
 		}
