@@ -14,15 +14,15 @@ func contains(arr []string, value string) bool {
 	return false
 }
 
-func isDirectoryEmpty(path string) (bool, error) {
-	dirEntries, err := os.ReadDir(path)
+func isDiretorioVazio(path string) (bool, error) {
+	entries, err := os.ReadDir(path)
 	if err != nil {
 		return false, err
 	}
 
-	for _, entry := range dirEntries {
+	for _, entry := range entries {
 		if entry.IsDir() {
-			isEmpty, err := isDirectoryEmpty(filepath.Join(path, entry.Name()))
+			isEmpty, err := isDiretorioVazio(filepath.Join(path, entry.Name()))
 			if err != nil {
 				return false, err
 			}
@@ -35,4 +35,23 @@ func isDirectoryEmpty(path string) (bool, error) {
 	}
 
 	return true, nil
+}
+
+func ObterDiretorios(path string) ([]string, error) {
+	diretorios := []string{}
+
+	entries, err := os.ReadDir(path)
+	if err != nil {
+		return diretorios, err
+	}
+
+	for _, e := range entries {
+		if e.IsDir() {
+			nomeDir := e.Name()
+			if nomeDir[:5] != "_000_" {
+				diretorios = append(diretorios, nomeDir)
+			}
+		}
+	}
+	return diretorios, nil
 }
