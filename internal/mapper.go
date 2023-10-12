@@ -2,6 +2,7 @@ package internal
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -80,7 +81,56 @@ type Artista struct {
 	path   string
 }
 
-func ObterArtista(origem string, artista string) (Artista, error) {
+func Mapear(path string, artista string) (map[string]Artista, error) {
+	artistas := make(map[string]Artista)
+	var nomesArtistas []string
+	var err error
+
+	if artista == "" {
+		nomesArtistas, err = ObterDiretorios(path)
+		if err != nil {
+			return artistas, nil
+		}
+	} else {
+		nomesArtistas = append(nomesArtistas, artista)
+	}
+
+	artistas, err = obterArtistas(path, nomesArtistas)
+	if err != nil {
+		return artistas, nil
+	}
+
+	for _, artista := range artistas {
+		albuns, err := obterAlbuns(artista)
+		if err != nil {
+			log.Fatal(err)
+		}
+		artista.albums = albuns
+	}
+
+	return artistas, nil
+}
+
+func obterArtistas(path string, nomesArtistas []string) (map[string]Artista, error) {
+	artistas := make(map[string]Artista)
+	for _, nomeArtista := range nomesArtistas {
+		artistas[nomeArtista] = Artista{
+			nome: nomeArtista,
+			path: filepath.Join(path, nomeArtista),
+		}
+	}
+	return artistas, nil
+}
+
+func obterAlbuns(artista Artista) (map[string]Album, error) {
+	albuns := make(map[string]Album)
+
+	// TODO fazer
+	return albuns, nil
+}
+
+// TODO alterar
+func obterMusicas(origem string, artista string) (Artista, error) {
 	artistaObj := Artista{
 		nome:   artista,
 		path:   filepath.Join(origem, artista),

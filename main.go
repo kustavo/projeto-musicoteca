@@ -22,24 +22,12 @@ func main() {
 		return
 	}
 
-	var artistas []string
-	var err error
-	if *argArtista == "" {
-		artistas, err = internal.ObterDiretorios(*argOrigem)
-		if err != nil {
-			log.Fatal(err)
-		}
-	} else {
-		artistas = append(artistas, *argArtista)
+	artistas, err := internal.Mapear(*argOrigem, *argArtista)
+	if err != nil {
+		log.Fatal(err)
 	}
 
-	for _, artista := range artistas {
-		artistaObj, err := internal.ObterArtista(*argOrigem, artista)
-		if err != nil {
-			log.Fatal(err)
-		}
-		_ = artistaObj
-	}
+	_ = artistas
 
 	// destinyFiles, err := internal.GetFilesMap(*outputPath, *outputPath)
 	// if err != nil {
