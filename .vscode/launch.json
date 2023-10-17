@@ -11,7 +11,8 @@
             "mode": "auto",
             "program": "${workspaceRoot}/main.go",
             "env": {},
-            "args": ["-origem", "/mnt/arquivos/Músicas/_000_fila/_000_teste_go/", "-destino", "/home/gustavo/teste/"]
+            "args": ["-origem", "/mnt/arquivos/Músicas/_000_fila/_000_teste_go/", "-destino", "/home/gustavo/teste/", "-somente-audio", "-flags", "ROC,TOP"],
+            //"console": "externalTerminal"
         }
     ]
 }

@@ -1,88 +1,76 @@
 package internal
 
-// import (
-// 	"fmt"
-// 	"os/exec"
-// 	"path/filepath"
-// 	"runtime"
-// 	"strings"
-// 	"sync"
-// )
+import (
+	"fmt"
+	"os/exec"
+	"path/filepath"
+	"runtime"
+	"strings"
+	"sync"
+)
 
-// func Transfer(sourceFiles map[string]Artista, destinyPath string, includeAudio bool, includeVideo bool, flags []string) error {
-// 	numCPUs := runtime.NumCPU() // Obtém o número de CPUs disponíveis
-// 	runtime.GOMAXPROCS(numCPUs) // Define o máximo de CPUs a serem utilizadas
+func Transfer(arquivos []string, origem string, destino string) error {
+	numCPUs := runtime.NumCPU() // Obtém o número de CPUs disponíveis
+	runtime.GOMAXPROCS(numCPUs) // Define o máximo de CPUs a serem utilizadas
 
-// 	fmt.Println("Converting files to mp3...")
+	var wg sync.WaitGroup
 
-// 	var wg sync.WaitGroup
-// 	for _, sourceArtist := range sourceFiles {
-// 		for _, sourceAlbums := range sourceArtist.albums {
-// 			for _, sourceSong := range sourceAlbums.songs {
+	for _, arquivo := range arquivos {
+		pathOrigem := arquivo
+		pathDestino := strings.Replace(arquivo, origem, destino, 1)
+		extensao := filepath.Ext(pathOrigem)
 
-// 				// Obtém o diretório pai
-// 				basePath := filepath.Dir(sourceArtist.path)
-// 				filePath := filepath.Join(basePath, sourceSong.path)
-// 				file := filepath.Base(filePath)
+		switch extensao {
+		case ".flac":
+			pathDestino = strings.TrimSuffix(pathDestino, extensao) + obterExtensaoConvertida(extensao)
+			fmt.Printf("Convertendo: %s >>> %s \n", pathOrigem, pathDestino)
+			wg.Add(1)
+			go func(pathOrigem, pathDestino string) {
+				defer wg.Done()
+				err := converterFlacParaMp3(pathOrigem, pathDestino)
+				if err != nil {
+					fmt.Println(err)
+				}
+			}(pathOrigem, pathDestino)
+		default:
+			fmt.Printf("Copiando: %s >>> %s \n", pathOrigem, pathDestino)
+			err := copiarArquivo(pathOrigem, pathDestino)
+			if err != nil {
+				fmt.Println(err)
+			}
+		}
+	}
 
-// 				if sourceSong.tipo == AudioMediaType {
-// 					mp3Path := filepath.Join(destinyPath, strings.TrimSuffix(sourceSong.path, ".flac")+".mp3")
+	wg.Wait()
+	return nil
+}
 
-// 					wg.Add(1)
-// 					go func(filePath, mp3Path string) {
-// 						defer wg.Done()
-// 						err := convertFlacToMp3(filePath, mp3Path)
-// 						if err != nil {
-// 							fmt.Println(err)
-// 						} else {
-// 							fmt.Printf("Convertido: %s >>> %s \n", filePath, mp3Path)
-// 						}
-// 					}(filePath, mp3Path)
+func copiarArquivo(origem string, destino string) error {
+	cmd := exec.Command("mkdir", "-p", filepath.Dir(destino))
+	err := cmd.Run()
+	if err != nil {
+		return fmt.Errorf("falha ao criar diretório: %v", err)
+	}
 
-// 					fmt.Println(file)
-// 				} else {
-// 					videoPath := filepath.Join(destinyPath, sourceSong.path)
-// 					err := moveFile(filePath, videoPath)
-// 					if err != nil {
-// 						fmt.Println(err)
-// 					} else {
-// 						fmt.Printf("Moved: %s >>> %s \n", filePath, videoPath)
-// 					}
-// 				}
-// 			}
-// 		}
-// 	}
+	cmd = exec.Command("cp", origem, destino)
+	err = cmd.Run()
+	if err != nil {
+		return fmt.Errorf("falha ao copiar: %v", err)
+	}
+	return nil
+}
 
-// 	wg.Wait()
-// 	return nil
-// }
+func converterFlacParaMp3(origem string, destino string) error {
+	cmd := exec.Command("mkdir", "-p", filepath.Dir(destino))
+	err := cmd.Run()
+	if err != nil {
+		return fmt.Errorf("falha ao criar diretório: %v", err)
+	}
 
-// func moveFile(sourceFilePath string, destFilePath string) error {
-// 	cmd := exec.Command("mkdir", "-p", filepath.Dir(destFilePath))
-// 	err := cmd.Run()
-// 	if err != nil {
-// 		return fmt.Errorf("failed to create dir: %v", err)
-// 	}
-
-// 	cmd = exec.Command("cp", sourceFilePath, destFilePath)
-// 	err = cmd.Run()
-// 	if err != nil {
-// 		return fmt.Errorf("failed to copy: %v", err)
-// 	}
-// 	return nil
-// }
-
-// func convertFlacToMp3(flacPath string, mp3Path string) error {
-// 	cmd := exec.Command("mkdir", "-p", filepath.Dir(mp3Path))
-// 	err := cmd.Run()
-// 	if err != nil {
-// 		return fmt.Errorf("failed to create dir: %v", err)
-// 	}
-
-// 	cmd = exec.Command("ffmpeg", "-i", flacPath, "-y", "-ab", "320k", mp3Path)
-// 	err = cmd.Run()
-// 	if err != nil {
-// 		return fmt.Errorf("failed to convert FLAC to MP3: %v", err)
-// 	}
-// 	return nil
-// }
+	cmd = exec.Command("ffmpeg", "-i", origem, "-y", "-ab", "320k", destino)
+	err = cmd.Run()
+	if err != nil {
+		return fmt.Errorf("falha ao converter FLAC para MP3: %v", err)
+	}
+	return nil
+}
