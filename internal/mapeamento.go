@@ -98,7 +98,10 @@ func obterAlbuns(artista Artista) (map[string]Album, error) {
 			return albuns, fmt.Errorf("[Album: %s] %s", nomeDir, err)
 		}
 		if artistaAlbum != artista.nome {
-			return albuns, fmt.Errorf("[Album: %s] %s", nomeDir, "nome do artista no album não corresponde")
+			artistaAlbumArr := strings.Split(artistaAlbum, " & ")
+			if !contains(artistaAlbumArr, artista.nome) {
+				return albuns, fmt.Errorf("[Album: %s] %s", nomeDir, "nome do artista no album não corresponde")
+			}
 		}
 
 		nomeAlbum, err := obterTituloArquivoAlbum(nomeDir)
@@ -150,7 +153,10 @@ func obterMusicas(album Album) (map[string]Musica, error) {
 				return musicas, fmt.Errorf("[Musica: %s] %s", nomeDir, err)
 			}
 			if artistaMusica != album.artista.nome {
-				return musicas, fmt.Errorf("[Musica: %s] nome do artista na música não corresponde", nomeDir)
+				artistaMusicaArr := strings.Split(artistaMusica, " & ")
+				if !contains(artistaMusicaArr, album.artista.nome) {
+					return musicas, fmt.Errorf("[Musica: %s] nome do artista na música não corresponde", nomeDir)
+				}
 			}
 
 			nomeMusica, err := obterTituloArquivoMusica(nomeDir)

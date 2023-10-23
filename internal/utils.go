@@ -94,7 +94,7 @@ func obterDiretorios(path string) ([]string, error) {
 	for _, e := range entries {
 		if e.IsDir() {
 			nomeDir := e.Name()
-			if nomeDir[:5] != "_000_" {
+			if (len(nomeDir) < 5 || nomeDir[:5] != "_000_") && nomeDir != ".Trash-1000" {
 				diretorios = append(diretorios, nomeDir)
 			}
 		}
