@@ -39,11 +39,13 @@ import (
 const (
 	TipoMidiaAudio = "audio"
 	TipoMidiaVideo = "video"
+	TipoLetra      = "letra"
 )
 
 var (
 	ExtensoesMidiasAudio = []string{"flac", "mp3"}
 	ExtensoesMidiasVideo = []string{"mp4", "webm"}
+	ExtensoesLetra       = []string{"srt"}
 )
 
 var (
@@ -118,4 +120,10 @@ func obterExtensaoOriginal(extensao string) string {
 	default:
 		return extensao
 	}
+}
+
+func removerExtensaoPath(path string) string {
+	extensao := filepath.Ext(path)
+	pathSemExtensao := path[0 : len(path)-len(extensao)]
+	return pathSemExtensao
 }

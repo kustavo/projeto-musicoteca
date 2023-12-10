@@ -214,6 +214,11 @@ func obterMusicas(album Album) (map[string]Musica, error) {
 		}
 	}
 
+	err = validarLetra(musicas)
+	if err != nil {
+		return musicas, fmt.Errorf("[Musica: %s] %s", album.nome, err)
+	}
+
 	return musicas, nil
 }
 
@@ -331,6 +336,8 @@ func obterTipoMidia(nomeArquivo string) (string, error) {
 		return TipoMidiaAudio, nil
 	} else if contains(ExtensoesMidiasVideo, extensao) {
 		return TipoMidiaVideo, nil
+	} else if contains(ExtensoesLetra, extensao) {
+		return TipoLetra, nil
 	} else {
 		return "", fmt.Errorf("extensão não permitida: %s", extensao)
 	}
@@ -353,6 +360,28 @@ func validarDiscoFaixa(musicas map[string]Musica) error {
 		for i := 1; i <= len(faixasDiscos[j]); i++ {
 			if _, ok := faixasDiscos[j][i]; !ok {
 				return fmt.Errorf("faixa '%d.%d' não encontrada", j, i)
+			}
+		}
+	}
+
+	return nil
+}
+
+func validarLetra(musicas map[string]Musica) error {
+	for _, musica := range musicas {
+		if musica.tipo == TipoLetra {
+			achouVideo := false
+			for _, musicaAux := range musicas {
+				if musicaAux.tipo == TipoMidiaVideo {
+					musicaPathNoExt := musica.path[0 : len(musica.path)-len(filepath.Ext(musica.path))]
+					musicaPathAuxNoExt := musicaAux.path[0 : len(musicaAux.path)-len(filepath.Ext(musicaAux.path))]
+					if musicaPathNoExt == musicaPathAuxNoExt {
+						achouVideo = true
+					}
+				}
+			}
+			if !achouVideo {
+				return fmt.Errorf("vídeo da letra '%s' não encontrado", musica.path)
 			}
 		}
 	}
