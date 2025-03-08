@@ -11,8 +11,7 @@
             "mode": "auto",
             "program": "${workspaceRoot}/main.go",
             "env": {},
-            "args": ["-origem", "/mnt/arquivos/Músicas/", "-destino", "/mnt/arquivos/Músicas/_000_pendrive_carro/", "-somente-audio", "-flags", "TOP"],
-            //"console": "externalTerminal"
+            "args": ["-source", "/home/gustavo/Músicas/", "-destination", "/home/gustavo/Músicas/_000_mp3/", "-ext-source", "flac", "-ext-destination", "mp3", "-artist", "a-ha", "-tags", "ROC,TOP", "-artist-folder", "true"],
         }
     ]
 }

@@ -1,0 +1,13 @@
+{
+    "tags": {
+        "main": ["SPD", "HVY", "HRD", "ROC", "POP", "SFT", "DSC", "DCE", "RLX", "FOC", "SPN", "INS", "COU", "REG"],
+        "mult": ["60S", "70S", "80S", "90S", "LIV", "ORC", "COR", "BRA", "GOV", "TOP", "NUL"],
+        "language": ["PT", "EN", "ES", "FR", "IT", "DE", "JP", "KR", "CN", "RU"]
+    },
+    "extensions": {
+        "audio": [".flac"],
+        "video": [".mp4"],
+        "caption": [".srt"]
+    },
+    "ignore": ["^_000_", "^.Trash-1000$", "^sync.ffs_db$", "^Readme.md$", "^projeto-musicoteca$"]
+}
