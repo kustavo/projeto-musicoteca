@@ -123,7 +123,12 @@ func ListDirectoryFiles(path string) ([]File, error) {
 			continue
 		}
 
-		extension := filepath.Ext(e.Name())
+		var extension string
+		if e.IsDir() {
+			extension = ""
+		} else {
+			extension = filepath.Ext(e.Name())
+		}
 		file := File{
 			Name:      strings.TrimSuffix(e.Name(), extension),
 			Path:      filepath.Join(path, e.Name()),
