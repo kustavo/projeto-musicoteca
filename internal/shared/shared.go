@@ -112,6 +112,9 @@ func ListDirectoryFiles(path string) ([]File, error) {
 	list := []File{}
 
 	entries, err := os.ReadDir(path)
+	if os.IsNotExist(err) {
+		return list, nil
+	}
 	if err != nil {
 		return list, err
 	}
