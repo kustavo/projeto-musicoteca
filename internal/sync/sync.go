@@ -6,7 +6,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"runtime"
 	"sync"
 
 	"github.com/kustavo/projeto-musicoteca/internal/shared"
@@ -99,9 +98,8 @@ func delete(files []shared.File) {
 }
 
 func transfer(medias []shared.MediaDTO, rootDestination string, extDestination string, artistFolder bool) error {
-	numCPUs := runtime.NumCPU() // Obtém o número de CPUs disponíveis
-	runtime.GOMAXPROCS(numCPUs) // Define o máximo de CPUs a serem utilizadas
-
+	numWorkers := shared.Conf.NumWorkers
+	sem := make(chan struct{}, numWorkers)
 	var wg sync.WaitGroup
 
 	for _, media := range medias {
@@ -118,14 +116,16 @@ func transfer(medias []shared.MediaDTO, rootDestination string, extDestination s
 		case ".mp3":
 			if media.Extension == ".flac" {
 				wg.Add(1)
-				go func() {
+				sem <- struct{}{}
+				go func(filePathSource, filePathDestination string) {
 					defer wg.Done()
+					defer func() { <-sem }()
 					log.Printf("Convertendo: %s", filePathSource)
 					err := convertFlacToMp3(filePathSource, filePathDestination)
 					if err != nil {
 						log.Printf("Erro ao converter %s: %v", filePathSource, err)
 					}
-				}()
+				}(filePathSource, filePathDestination)
 			} else {
 				log.Printf("Não há conversor para a extensão: %s", media.Extension)
 			}

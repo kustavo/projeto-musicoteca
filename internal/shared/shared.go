@@ -26,7 +26,8 @@ type Config struct {
 		Video   []string `json:"video"`
 		Caption []string `json:"caption"`
 	} `json:"extensions"`
-	Ignore []string `json:"ignore"`
+	Ignore     []string `json:"ignore"`
+	NumWorkers int      `json:"numWorkers"`
 }
 
 type Artist struct {

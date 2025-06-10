@@ -9,5 +9,6 @@
         "video": [".mp4"],
         "caption": [".srt"]
     },
-    "ignore": ["^_000_", "^.Trash-1000$", "^sync.ffs_db$", "^Readme.md$", "^projeto-musicoteca$"]
+    "ignore": ["^_000_", "^.Trash-1000$", "^sync.ffs_db$", "^Readme.md$", "^projeto-musicoteca$"],
+    "numWorkers": 5
 }
