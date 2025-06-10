@@ -24,6 +24,7 @@ Parâmetros:
 
 ./projeto-musicoteca -source "/home/gustavo/Músicas/" -destination "/home/gustavo/Músicas/mp3/" -ext-source "flac" -ext-destination "mp3" -artist "a-ha" -tags "ROC,TOP" -artist-folder "true"
 
+./projeto-musicoteca -source "/home/gustavo/Músicas/" -destination "/home/gustavo/Músicas/_000_mp3/" -ext-source "flac" -ext-destination "mp3" -tags "TOP" -artist-folder "true"
 
 ## Tags principais
 
