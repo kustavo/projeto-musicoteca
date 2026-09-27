@@ -1,6 +1,6 @@
 # projeto-musicoteca
 
-Script para converter e sincronizar arquivos de audio e vídeo entre uma origem e destino.
+Script para manter nomes dos arquivos padronizados, converter formatos de áudio e sincronizar arquivos entre uma origem e destino.
 
 ## Como usar
 
@@ -26,7 +26,7 @@ Parâmetros:
 
 ./projeto-musicoteca -source "/home/gustavo/Músicas/" -destination "/home/gustavo/Músicas/_000_mp3/" -ext-source "flac" -ext-destination "mp3" -tags "TOP" -artist-folder "true"
 
-## Tags principais
+## Tag principal
 
 * SPD - Speed Metal
 * HVY - Heavy Metal
@@ -38,10 +38,10 @@ Parâmetros:
 * DCE - Dance (estilo anos 90)
 * RLX - Relax (muito tranquila com voz) (para relaxamento, igual foco mas pode ter voz)
 * FOC - focus (muito tranquila sem voz) (para manter o foco, não distrair com barulho externo)
-* SPN - Spanish (músicas em espanhol)
 * INS - Instrumental
 * COU - Country
 * REG - Reggae
+* FLA - Flamenco/Rumba
 
 ## Tags secundárias
 
@@ -53,6 +53,7 @@ Parâmetros:
 * ORC - Orchestrated (músicas orquestradas)
 * COR - Choir (coro)
 * BRA - Nacional
+* SPN - Spanish (músicas em espanhol)
 * GOV - Good Vibes (alto astral)
 * TOP - Top (favoritas)
 * NUL - Null (apenas para o acervo, não deve entrar em playlist)
